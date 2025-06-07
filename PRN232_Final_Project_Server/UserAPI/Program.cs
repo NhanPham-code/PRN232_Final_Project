@@ -1,7 +1,19 @@
+﻿using Microsoft.EntityFrameworkCore;
+using UserAPI.Data;
+using UserAPI.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 
+// Thêm DbContext với connection string
+builder.Services.AddDbContext<DBContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add services to the container.
+// Đăng ký repository
+builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+// Tiêm AutoMapper
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
