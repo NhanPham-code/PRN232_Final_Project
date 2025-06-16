@@ -1,0 +1,249 @@
+﻿
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Checkout";
+    var cartItems = Model as List<Cart>;
+    var cartIDs = ViewBag.CartID as List<int>;
+}
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BakeryShop</title>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/Cart.css" asp-append-version="true">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+</head>
+
+<body>
+    <div class="hero" style="color: #fff">
+        <h1 class="header-cart text-center">CART</h1>
+        <div class="breadcrumb-container d-flex justify-content-center">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["action"].ToString() == "Index" && ViewContext.RouteData.Values["controller"].ToString() == "Home" ? "active" : "")"
+                           asp-controller="Home" asp-action="Index">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page" style="color: #fff">Cart</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="container">
+        <table class="table table-striped mt-5">
+            <thead style="background-color: #FFA07A; color: #fff;">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in cartItems)
+                {
+                    <tr>
+                        <td>@item.Product.ProductName</td>
+                        <td class="price">@item.Product.Price.ToString("C")</td>
+                        <td>@item.Quantity</td>
+                        <td class="subtotal">@(item.Quantity * item.Product.Price)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        @{
+            TempData["TotalPrice"] = (decimal)(cartItems?.Sum(item => item.Product.Price * item.Quantity) ?? 0);
+        }
+        <h3 class="text-end">Total Price: @TempData["TotalPrice"]</h3>
+
+
+        @{
+            User User = ViewBag.User;
+        }
+        <form id="checkoutForm" method="post" asp-controller="Orders" asp-action="CreateOrder" data-user-id="@ViewData["UserID"]">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden" id="totalPriceField" name="totalPrice" value="@TempData["TotalPrice"]" />
+
+            <input type="hidden" name="cartIds" value="@string.Join(",", cartIDs)" />
+
+            <h1 class="text-center fw-bold mb-4 mt-4" style="font-family: Arial, sans-serif;">Please enter your information</h1>
+
+            <div class="mb-3">
+                <label for="fullName" class="form-label">Full Name:</label>
+                <input type="text" class="form-control" id="fullName" name="fullName" value="@User.FullName" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="@User.Email" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="phone" class="form-label">Phone Number:</label>
+                <input type="text" class="form-control" id="phone" name="phone" value="@User.PhoneNumber" readonly>
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Address:</label>
+                <input type="text" class="form-control" id="address" name="shipping_address" value="@User.Address" required />
+            </div>
+
+            <div class="row">
+                <div class="col-12 text-right">
+                    <button id="orderBtn" class="btn-checkout" type="submit">ORDER</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.1/css/dataTables.dataTables.css" />
+
+    <script src="https://cdn.datatables.net/2.2.1/js/dataTables.js"></script>
+
+    @section Scripts {
+        <script>
+            var js = jQuery.noConflict(true); //handle conflict of dataTable
+            var currentUserID = '@ViewData.["UserID"]';
+
+            js(document).ready(function () {
+                let orderItem = [];
+                console.log(currentUserID);
+                var cartData = [
+                    {
+                        image: '/img/PRODUCT/Special/Tiramisu.png',
+                        product: "Tiramisu",
+                        price: "25,000 $",
+                        quantity: null,
+                        subtotal: "25,000 $"
+                    },
+                    {
+                        image: '/img/PRODUCT/Bread/Croissant.png',
+                        product: "Crossaint",
+                        price: "32,000 $",
+                        quantity: null,
+                        subtotal: "32,000 $"
+                    },
+                    {
+                        image: '/img/PRODUCT/Sweet/Chocolate Donut.png',
+                        product: "Chocolate Donut",
+                        price: "35,000 $",
+                        quantity: null,
+                        subtotal: "35,000 $"
+                    }
+                ];
+
+                // Initialize DataTable
+                const table = $('#cartTable').DataTable({
+                    paging: false,
+                    searching: false,
+                    info: false,
+                    ordering: false,
+                    data: cartData,
+                    columns: [
+                        {
+                            title: "",
+                            data: "image",
+                            className: "align-middle product-image",
+                            render: function (data) {
+                                return `<img src="${data}" class="product-image">`;
+                            }
+                        },
+                        { title: "Product", data: "product", className: "align-middle" },
+                        { title: "Price", data: "price", className: "align-middle price" },
+                        { title: "Quantity", data: "quantity", className: "align-middle" },
+                        { title: "Subtotal", data: "subtotal", className: "align-middle subtotal" }
+                    ],
+                    createdRow: function (row) {
+                        var quantityCell = $('td:eq(3)', row);
+                        quantityCell.html(
+                            `<div class="quantity-control">
+                                <button class="quantity-btn decrease">-</button>
+                                <input type="text" class="quantity-input" value="1" readonly>
+                                <button class="quantity-btn increase">+</button>
+                             </div>`
+                        );
+                    }
+                });
+
+                function calculateTotal() {
+                    let total = 0;
+                    $('#cartTable tbody tr').each(function () {
+                        let subtotalText = $(this).find('.subtotal').text().replace(/\D/g, "");
+                        let subtotalValue = parseInt(subtotalText) || 0;
+                        total += subtotalValue;
+                    });
+
+                    $('#total').text(total.toLocaleString('en-US') + ' $');
+                }
+
+                function updateSubtotal(input) {
+                    let $input = $(input);
+                    let row = $input.closest("tr");
+                    let priceText = row.find(".price").text().replace(/\D/g, "");
+                    let price = parseInt(priceText) || 0;
+                    let quantity = parseInt($input.val()) || 1;
+
+                    let subtotal = price * quantity;
+                    row.find(".subtotal").text(subtotal.toLocaleString("en-US") + " $");
+
+                    calculateTotal();
+                }
+
+                // Xử lý tăng số lượng
+                $(document).on("click", ".increase", function () {
+                    let input = $(this).siblings(".quantity-input");
+                    let newValue = parseInt(input.val()) + 1;
+                    input.val(newValue);
+                    updateSubtotal(input);
+                });
+
+                // Xử lý giảm số lượng
+                $(document).on("click", ".decrease", function () {
+                    let input = $(this).siblings(".quantity-input");
+                    let newValue = parseInt(input.val()) - 1;
+                    if (newValue < 1) return;
+                    input.val(newValue);
+                    updateSubtotal(input);
+                });
+
+                calculateTotal();
+
+                $("#checkoutForm").submit(function (e) {
+                    var address = $("#address").val().trim();
+                    if (address === "") {
+                        alert("Please enter your shipping address!");
+                        $("#address").focus();
+                        e.preventDefault();
+                        return;
+                    }
+
+                    var confirmOrder = confirm("Are you sure on creating this order?");
+                    if (!confirmOrder) {
+                        e.preventDefault();
+                    }
+                });
+
+            });
+        </script>
+    }
+</body>

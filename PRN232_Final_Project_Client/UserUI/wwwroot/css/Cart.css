@@ -1,0 +1,236 @@
+﻿.content {
+    margin: 0 auto;
+    padding: 40px;
+}
+
+.hero {
+    background-image: url('/img/PRODUCT/Background/Bakery.jpg'); /* Thay URL ảnh nền */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: #fff !important;
+}
+
+#cartTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+    margin: 10px 0;
+    table-layout: fixed;
+}
+
+/* Cố định phần header của bảng */
+.table-container {
+    max-height: 400px; /* Ông có thể điều chỉnh chiều cao theo ý muốn */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+}
+
+#cartTable thead {
+    position: sticky;
+    top: 0;
+    background-color: #f4f4f4;
+    z-index: 10;
+}
+
+#cartTable th,
+#cartTable td {
+    padding: 10px;
+    text-align: center; /* Căn giữa nội dung theo chiều ngang */
+    vertical-align: middle; /* Căn giữa theo chiều dọc */
+}
+
+#cartTable tbody tr {
+    background-color: #fff;
+}
+
+    #cartTable tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+/* Căn giữa ảnh sản phẩm */
+.product-image {
+    width: 150px;
+    height: 100px;
+    display: block;
+    margin: auto;
+}
+
+/* Điều chỉnh số lượng */
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #000;
+    width: 120px;
+    margin: auto;
+}
+
+.quantity-input {
+    width: 60px;
+    height: 30px;
+    text-align: center; /* Đảm bảo số được căn giữa */
+    font-weight: bold;
+    border: none;
+    outline: none;
+    display: block; /* Giúp căn giữa */
+    margin: 0 auto;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    border-top: none;
+    border-bottom: none;
+}
+
+.quantity-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: none;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Tổng cộng */
+.total-row {
+    background-color: #D19F65;
+}
+
+/* Căn giữa nút xóa */
+.btn-checkout {
+    background-color: #b87c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+/* Custom X checkbox styles */
+.checkbox-container {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-svg {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: white;
+    border: 2px solid #ccc;
+    transition: all 0.3s ease;
+}
+
+.checkbox-input:checked + .checkbox-svg {
+    background: #007bff;
+    border-color: #007bff;
+}
+
+.x-mark {
+    stroke: white;
+    stroke-width: 2;
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    transition: stroke-dashoffset 0.3s ease;
+}
+
+.checkbox-input:checked + .checkbox-svg .x-mark {
+    stroke-dashoffset: 0;
+}
+
+.checkbox-container:hover .checkbox-svg {
+    border-color: #007bff;
+}
+
+.remove-btn {
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+    .remove-btn:hover {
+        color: red;
+    }
+
+.custom-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+    .custom-checkbox input {
+        opacity: 0;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        position: absolute;
+    }
+
+.check-icon {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: none;
+}
+
+.checkbox-border {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: 0;
+    top: 0;
+    border-radius: 2px;
+}
+
+.custom-checkbox input:checked + .checkbox-border + .check-icon {
+    display: block;
+}
+
+/* NOTE: Tăng kích thước checkbox */
+.cart-checkbox {
+    width: 20px; /* Ông có thể chỉnh kích thước tại đây */
+    height: 20px;
+}
+
+/* NOTE: Nút CHECK OUT cách phía dưới thêm 20px */
+#checkoutBtn {
+    background-color: #ff9800;
+    color: white;
+    padding: 10px 30px;
+    font-size: 18px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 20px; /* Cách phía dưới 20px */
+}
+
+    #checkoutBtn:hover {
+        background-color: #e68900;
+    }
