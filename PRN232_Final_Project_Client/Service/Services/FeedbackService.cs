@@ -1,10 +1,14 @@
 ﻿using DTOs.FeedbackDTO;
 using DTOs.UserDTO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Service.BaseService;
 using Service.Interfaces;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace Service.Services
 {
     public class FeedbackService : IFeedbackService
@@ -56,5 +60,37 @@ namespace Service.Services
             return resp.IsSuccessStatusCode;
         }
 
+        public async Task<List<ReadFeedbackDTO>> GetTopFeedbackAsync(int top, string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"https://localhost:7028/odata/ODataFeedbacks?$top=5&$orderby=FeedbackID%20desc");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+
+            var response = await _client.SendAsync(request);
+            if (!response.IsSuccessStatusCode) return new List<ReadFeedbackDTO>();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            // OData trả về trong property "value", cần lấy ra
+            var jobject = JObject.Parse(json);
+            var list = jobject["value"].ToObject<List<ReadFeedbackDTO>>();
+            return list;
+        }
+        public async Task<List<ReadFeedbackDTO>> GetAllOdataAsync(string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "https://localhost:7028/odata/ODataFeedbacks");
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Lỗi gọi API Feedback: " + response.StatusCode);
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            // OData trả về trong property "value", cần lấy ra
+            var jobject = JObject.Parse(json);
+            var list = jobject["value"].ToObject<List<ReadFeedbackDTO>>();
+            return list;
+        }
     }
 }

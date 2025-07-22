@@ -25,6 +25,12 @@ namespace FeedbackAPI.Services
             return _repo.GetAllFeedbacks()
                         .ProjectTo<ReadFeedbackDTO>(_mapper.ConfigurationProvider);
         }
+        public IQueryable<Feedback> GetAllFeedbacksForOData()
+        {
+            // Trả về IQueryable<User> để OData có thể truy vấn
+            return _repo.GetAllFeedbacks();
+
+        }
         public async Task<ReadFeedbackDTO> CheckExistFBById(int userId)
         {
             var entity = await _repo.GetAllFeedbacks().FirstOrDefaultAsync(f => f.UserID == userId);
@@ -73,5 +79,7 @@ namespace FeedbackAPI.Services
             Console.WriteLine(" ",feedback.FeedbackID);    
             return true;
         }
+
+
     }
 }

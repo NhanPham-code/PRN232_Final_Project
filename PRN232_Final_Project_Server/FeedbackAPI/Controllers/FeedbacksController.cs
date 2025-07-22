@@ -9,19 +9,11 @@ namespace FeedbackAPI.Controllers
     [Route("api/[controller]")]
     public class FeedbacksController : ControllerBase
     {
-        private readonly IFeedbackService _service;
+        private readonly IFeedbackService _service;               
 
         public FeedbacksController(IFeedbackService service)
         {
             _service = service;
-        }
-
-        // GET: api/Feedbacks
-        [HttpGet]
-        [EnableQuery]
-        public IQueryable<ReadFeedbackDTO> GetAll()
-        {
-            return _service.GetAllFeedbacks();
         }
 
         // GET: api/Feedbacks/user/5
@@ -61,5 +53,6 @@ namespace FeedbackAPI.Controllers
             Console.WriteLine($"❗ Đang cố xoá feedback của userId = {userId}");
             return deleted ? NoContent() : NotFound();
         }
+
     }
 }

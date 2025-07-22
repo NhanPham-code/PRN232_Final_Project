@@ -2,19 +2,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Service.Interfaces;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 
 namespace UserUI.Controllers
 {
-        public class ContactController : Controller
-        {
-            private readonly IFeedbackService _feedbackService;
+    public class ContactController : Controller
+    {
+        private readonly IFeedbackService _feedbackService;
 
-            public ContactController(IFeedbackService feedbackService)
-            {
-                _feedbackService = feedbackService;
-            }
+        public ContactController(IFeedbackService feedbackService)
+        {
+            _feedbackService = feedbackService;
+        }
 
         /* ----------------- Trang Contact ------------------------------- */
         public async Task<IActionResult> Index()
@@ -29,7 +30,7 @@ namespace UserUI.Controllers
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Common");
 
-            var list = await _feedbackService.GetAllAsync(token);               // ✅ truyền token
+            var list = await _feedbackService.GetTopFeedbackAsync(5, token);               // ✅ truyền token
 
             var customerFeedback = await _feedbackService.GetByUserIdAsync(token);
             if (customerFeedback != null)
@@ -67,6 +68,15 @@ namespace UserUI.Controllers
             return RedirectToAction("Index");
         }
 
+        /* ----------------- Trang List ------------------------------- */
+        [HttpGet]
+        public async Task<IActionResult> ListFeedback() 
+        {
+            var token = HttpContext.Session.GetString("UserToken");
+            if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Common");
+            var list = await _feedbackService.GetAllOdataAsync(token); // Lấy toàn bộ feedback hoặc phân trang tùy ý
 
+            return View("ListFeedback", list);
+        }
     }
 }
