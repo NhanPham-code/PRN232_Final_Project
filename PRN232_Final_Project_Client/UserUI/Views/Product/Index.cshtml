@@ -860,14 +860,21 @@
 
 
             $(document).ready(function () {
-            const page = sessionStorage.getItem("currentPage");
+          
             if (isNaN(page) || page < 1) {
                 loadProducts(1);
             } else {
-                loadProducts(page);
+                loadProducts(1);
             }
         });
          $(document).ready(function () {
+                   $('.category-link').on('click', function () {
+          $('.category-link').removeClass('active'); // bỏ class active khỏi các thẻ khác
+          $(this).addClass('active'); // thêm class active cho thẻ được click
+
+          $('#globalSearchInputProduct').trigger('input'); // kích hoạt sự kiện tìm kiếm
+        });
+
             $('#globalSearchInputProduct').on('input change', function () {
                 const query = $(this).val();
                 if (query.length < 1) {
