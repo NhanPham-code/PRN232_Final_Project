@@ -7,29 +7,33 @@
 <div class="container mt-4">
     <h2 class="mb-4">📋 Quản lý người dùng</h2>
 
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Tìm theo tên hoặc email..." />
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100" id="searchBtn">
-                <i class="bi bi-search"></i> Tìm
-            </button>
+    <!-- Tìm kiếm -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-2">
+                <div class="col-md-8">
+                    <input type="text" id="searchInput" class="form-control" placeholder="🔍 Tìm theo tên hoặc email..." />
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary w-100" id="searchBtn">
+                        <i class="bi bi-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Danh sách người dùng -->
     <div id="userTableContainer">
-        <div class="text-center my-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Đang tải...</span>
-            </div>
+        <div class="d-flex justify-content-center align-items-center" style="height: 200px;">
+            <div class="spinner-grow text-primary me-2" role="status"></div>
+            <div class="spinner-grow text-info me-2" role="status"></div>
+            <div class="spinner-grow text-secondary" role="status"></div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-
-    <!-- ✅ Import thư viện SweetAlert2 & SignalR -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
@@ -45,34 +49,31 @@
                 loadUsers();
             });
 
-            // SignalR connection to reload when user updated
             const connection = new signalR.HubConnectionBuilder()
                 .withUrl("https://localhost:7126/notificationHub")
                 .build();
 
             connection.start()
                 .then(() => {
-                    console.log("✅ Đã kết nối đến Notification Hub");
+                    console.log("✅ Kết nối Notification Hub");
 
                     connection.on("ProfileUpdated", function (userId) {
-                        console.log(`👤 User ${userId} đã cập nhật hồ sơ.`);
-
                         Swal.fire({
                             title: '🔔 Có thay đổi dữ liệu!',
-                            text: 'Một người dùng vừa cập nhật hồ sơ. Bạn có muốn tải lại danh sách?',
+                            text: 'Một người dùng đã cập nhật hồ sơ. Bạn có muốn tải lại?',
                             icon: 'info',
                             showCancelButton: true,
                             confirmButtonText: 'Tải lại',
-                            cancelButtonText: 'Để sau'
+                            cancelButtonText: 'Không'
                         }).then((result) => {
                             if (result.isConfirmed) {
-                                loadUsers(); // Gọi lại danh sách người dùng
+                                loadUsers();
                             }
                         });
                     });
                 })
                 .catch(err => {
-                    console.error("❌ Không thể kết nối Hub:", err);
+                    console.error("❌ Lỗi kết nối Hub:", err);
                 });
         });
 
@@ -85,16 +86,13 @@
                 method: 'GET',
                 dataType: 'json',
                 success: function (data) {
-                    console.log("Dữ liệu trả về từ server:", data);
-
                     if (!data || !Array.isArray(data.value)) {
-                        $('#userTableContainer').html('<div class="alert alert-warning">Không nhận được dữ liệu người dùng.</div>');
+                        $('#userTableContainer').html('<div class="alert alert-warning">Không có dữ liệu người dùng.</div>');
                         return;
                     }
 
                     const users = data.value;
-                    const totalCount = data["@@odata.count"] // Fallback nếu không có count
-
+                    const totalCount = data["@@odata.count"] || users.length;
                     renderUserTable(users, totalCount);
                 },
                 error: function (xhr) {
@@ -105,12 +103,12 @@
                         try {
                             const errorData = JSON.parse(xhr.responseText);
                             if (errorData.message) {
-                                message += "<br><strong>Lỗi API:</strong> " + errorData.message;
+                                message += "<br><strong>API:</strong> " + errorData.message;
                             } else {
-                                message += "<br><strong>Phản hồi lỗi:</strong> " + xhr.responseText;
+                                message += "<br><strong>Chi tiết:</strong> " + xhr.responseText;
                             }
-                        } catch (e) {
-                            message += "<br><strong>Phản hồi lỗi:</strong> " + xhr.responseText;
+                        } catch {
+                            message += "<br><strong>Chi tiết:</strong> " + xhr.responseText;
                         }
                     }
                     $('#userTableContainer').html(`<div class="alert alert-danger">${message}</div>`);
@@ -119,92 +117,130 @@
         }
 
         function renderUserTable(users, totalCount) {
-            debugger; // <--- Giữ debugger ở đây để kiểm tra
-
             if (users.length === 0) {
                 $('#userTableContainer').html('<div class="alert alert-warning">Không tìm thấy người dùng nào.</div>');
                 return;
             }
 
             let html = `<div class="table-responsive">
-                                <table class="table table-bordered table-striped align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Họ tên</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Address</th>
-                                        <th>Vai trò</th>
-                                        <th>Ngày đăng ký</th>
-                                        <th>Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>`;
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Số điện thoại</th>
+                                    <th>Địa chỉ</th>
+                                    <th>Vai trò</th>
+                                    <th>Ngày đăng ký</th>
+                                    <th>Hành động</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
 
             for (let i = 0; i < users.length; i++) {
                 const user = users[i];
-
-                const roleBadge = {
+                const badgeColor = {
                     "Admin": "danger",
-                    "Customer": "primary",
+                    "Customer": "primary"
                 }[user.Role] || "secondary";
 
-                const date = user.RegistrationDate ? new Date(user.registrationDate).toLocaleDateString() : "Không rõ";
+                const regDate = user.RegistrationDate ? new Date(user.RegistrationDate).toLocaleDateString() : "Không rõ";
 
                 html += `<tr>
-                                    <td>${(currentPage - 1) * pageSize + i + 1}</td>
-                                    <td>${user.FullName}</td>
-                                    <td>${user.Email}</td>
-                                    <td>${user.PhoneNumber}</td>
-                                    <td>${user.Address}</td>
-                                    <td><span class="badge bg-${roleBadge}">${user.Role}</span></td>
-                                    <td>${date}</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="banUser(${user.UserId})">
-                                            <i class="bi bi-slash-circle"></i> Cấm
-                                        </button>
-                                    </td>
-                                </tr>`;
+                            <td>${(currentPage - 1) * pageSize + i + 1}</td>
+                            <td><i class="bi bi-person-fill text-primary me-1"></i> ${user.FullName}</td>
+                            <td><i class="bi bi-envelope-fill text-muted me-1"></i> ${user.Email}</td>
+                            <td>${user.PhoneNumber}</td>
+                            <td>${user.Address}</td>
+                            <td><span class="badge bg-${badgeColor}">${user.Role}</span></td>
+                            <td>${regDate}</td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="bi bi-slash-circle"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="banUser(${user.UserId})">Cấm người dùng</a></li>
+                                        <li><a class="dropdown-item" href="#">Xem hồ sơ</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>`;
             }
 
             html += `</tbody></table></div>`;
 
-            // Pagination
+            // Phân trang
             const totalPages = Math.ceil(totalCount / pageSize);
             html += '<nav><ul class="pagination justify-content-center mt-3">';
+            html += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                                <button class="page-link" onclick="goToPage(${currentPage - 1})">&laquo;</button>
+                            </li>`;
             for (let i = 1; i <= totalPages; i++) {
                 html += `<li class="page-item ${i === currentPage ? 'active' : ''}">
                                     <button class="page-link" onclick="goToPage(${i})">${i}</button>
                                  </li>`;
             }
+            html += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                                <button class="page-link" onclick="goToPage(${currentPage + 1})">&raquo;</button>
+                             </li>`;
             html += '</ul></nav>';
 
             $('#userTableContainer').html(html);
         }
 
         function goToPage(page) {
+            if (page <= 0) return;
             currentPage = page;
             loadUsers();
         }
 
         function banUser(userId) {
-            if (!confirm('Bạn có chắc muốn cấm người dùng này?')) return;
-
-            $.ajax({
-                url: `/api/Users/${userId}/ban`,
-                type: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + 'Context.Session.GetString("AdminToken")'
-                },
-                success: function () {
-                    alert('Đã cấm người dùng.');
-                    loadUsers();
-                },
-                error: function () {
-                    alert('Lỗi khi cấm người dùng.');
+            Swal.fire({
+                title: 'Bạn chắc chắn?',
+                text: "Người dùng sẽ bị cấm khỏi hệ thống!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Xác nhận',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/api/Users/${userId}/ban`,
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + 'Context.Session.GetString("AdminToken")'
+                        },
+                        success: function () {
+                            Swal.fire('Đã cấm!', 'Người dùng đã bị cấm.', 'success');
+                            loadUsers();
+                        },
+                        error: function () {
+                            Swal.fire('Lỗi', 'Không thể cấm người dùng.', 'error');
+                        }
+                    });
                 }
             });
         }
     </script>
+
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-size: 0.85rem;
+            padding: 0.4em 0.6em;
+        }
+
+        .dropdown-menu {
+            font-size: 0.9rem;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+        }
+    </style>
 }
