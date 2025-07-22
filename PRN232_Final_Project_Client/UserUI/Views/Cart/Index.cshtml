@@ -17,6 +17,7 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+
     <link rel="stylesheet" href="~/css/Cart.css" asp-append-version="true">
 </head>
 
@@ -126,6 +127,22 @@
     </div>
 
     @* <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script> *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7126/notificationHub") // Điều chỉnh đúng URL của Hub
+            .withAutomaticReconnect()
+            .build();
+
+        connection.start().then(() => {
+            console.log("Connected to SignalR for Cart Listening");
+        });
+
+        connection.on("CartChanged", () => {
+            console.log("Real-time: CartChanged event received");
+            location.reload(); // hoặc gọi hàm `loadCartItems()` nếu ông dùng AJAX
+        });
+    </script>
     <script>
         $(document).ready(function () {
             let skip = @carts.Count;
@@ -260,9 +277,25 @@
             });
 
             // Update subtotal when quantity changes in edit mode
-            $(document).on('input', '.quantity-input', function () {
-                updateSubtotal($(this).closest('tr'));
-            });
+                    $(document).on('input', '.quantity-input', function () {
+            const $input = $(this);
+            const row = $input.closest('tr');
+            const min = parseInt($input.attr('min'));
+            const max = parseInt($input.attr('max'));
+            let val = parseInt($input.val());
+
+            if (isNaN(val)) {
+                val = min;
+            } else if (val < min) {
+                val = min;
+            } else if (val > max) {
+                val = max;
+            }
+
+            $input.val(val); // set lại giá trị đúng giới hạn
+            updateSubtotal(row);
+        });
+
 
             $("#checkoutForm").submit(function (e) {
                 e.preventDefault();

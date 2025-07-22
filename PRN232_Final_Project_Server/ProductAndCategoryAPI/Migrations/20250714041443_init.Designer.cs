@@ -12,7 +12,7 @@ using ProductAndCategoryAPI.Data;
 namespace ProductAndCategoryAPI.Migrations
 {
     [DbContext(typeof(ProductAndCategoryDbContext))]
-    [Migration("20250625030815_init")]
+    [Migration("20250714041443_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -129,7 +129,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 1,
                             CategoryID = 1,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Classic French croissant with buttery layers.",
                             ImageURL = "img/product/bread/croissant.png",
                             IsAvailable = true,
@@ -141,7 +141,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 2,
                             CategoryID = 1,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Soft bun filled with rich custard lava.",
                             ImageURL = "img/product/bread/goldenlavabun.png",
                             IsAvailable = true,
@@ -153,7 +153,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 3,
                             CategoryID = 1,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Fruit loaf packed with dried fruits and nuts.",
                             ImageURL = "img/product/bread/gourmetfruitloaf.png",
                             IsAvailable = true,
@@ -165,7 +165,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 4,
                             CategoryID = 1,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Savory bread with a classic sausage filling.",
                             ImageURL = "img/product/bread/sausagestandard.png",
                             IsAvailable = true,
@@ -177,7 +177,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 5,
                             CategoryID = 1,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Seasonal bread inspired by spring flavors.",
                             ImageURL = "img/product/bread/springinthecity.png",
                             IsAvailable = true,
@@ -189,7 +189,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 6,
                             CategoryID = 2,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Chocolate cake with fresh berries topping.",
                             ImageURL = "img/product/cakeslice/bearychoco.png",
                             IsAvailable = true,
@@ -201,7 +201,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 7,
                             CategoryID = 2,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Creamy cheesecake layered with brownie crust.",
                             ImageURL = "img/product/cakeslice/browniecheesesliced.png",
                             IsAvailable = true,
@@ -213,7 +213,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 8,
                             CategoryID = 2,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Cute bunny-shaped cake with vanilla flavor.",
                             ImageURL = "img/product/cakeslice/bunny.png",
                             IsAvailable = true,
@@ -225,7 +225,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 9,
                             CategoryID = 2,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Chocolate mousse cake with peanut crunch.",
                             ImageURL = "img/product/cakeslice/bearyberry.png",
                             IsAvailable = true,
@@ -237,7 +237,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 10,
                             CategoryID = 2,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "French Opera cake with coffee and chocolate.",
                             ImageURL = "img/product/cakeslice/lesopera.png",
                             IsAvailable = true,
@@ -249,7 +249,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 11,
                             CategoryID = 2,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Chocolate cheesecake topped with Oreo.",
                             ImageURL = "img/product/cakeslice/bearymatcha.png",
                             IsAvailable = true,
@@ -261,7 +261,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 12,
                             CategoryID = 3,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Soft chocolate-filled bun.",
                             ImageURL = "img/product/savory/chocolatebun.png",
                             IsAvailable = true,
@@ -273,7 +273,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 13,
                             CategoryID = 3,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Flaky croissant filled with rich chocolate.",
                             ImageURL = "img/product/savory/chocolatecroissant.png",
                             IsAvailable = true,
@@ -285,7 +285,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 14,
                             CategoryID = 3,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Japanese-style croissant with sesame flavor.",
                             ImageURL = "img/product/savory/gomacroissant.png",
                             IsAvailable = true,
@@ -297,7 +297,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 15,
                             CategoryID = 3,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Green tea-flavored bun with red bean filling.",
                             ImageURL = "img/product/savory/matchabun.png",
                             IsAvailable = true,
@@ -309,7 +309,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 16,
                             CategoryID = 3,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Extra chocolate-filled croissant.",
                             ImageURL = "img/product/savory/ultimatechococroissant.png",
                             IsAvailable = true,
@@ -321,7 +321,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 17,
                             CategoryID = 3,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Croissant with smooth white chocolate filling.",
                             ImageURL = "img/product/savory/whitechococroissant.png",
                             IsAvailable = true,
@@ -333,7 +333,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 18,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Luxurious French Opera cake with multiple layers.",
                             ImageURL = "img/product/cakeslice/lesopera.png",
                             IsAvailable = true,
@@ -345,7 +345,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 19,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Exotic mango and coconut-flavored cake.",
                             ImageURL = "img/product/special/mangocococake.png",
                             IsAvailable = true,
@@ -357,7 +357,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 20,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Vibrant pink cake perfect for celebrations.",
                             ImageURL = "img/product/special/partypink.png",
                             IsAvailable = true,
@@ -369,7 +369,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 21,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Tangy passion fruit cheesecake.",
                             ImageURL = "img/product/special/passioncheese.png",
                             IsAvailable = true,
@@ -381,7 +381,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 22,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Colorful multi-layered sponge cake.",
                             ImageURL = "img/product/special/rainbow.png",
                             IsAvailable = true,
@@ -393,7 +393,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 23,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Winter-inspired cake with fruity layers.",
                             ImageURL = "img/product/special/snowyfruity.png",
                             IsAvailable = true,
@@ -405,7 +405,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 24,
                             CategoryID = 4,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Classic Italian Tiramisu with coffee and mascarpone.",
                             ImageURL = "img/product/special/tiramisu.png",
                             IsAvailable = true,
@@ -417,7 +417,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 25,
                             CategoryID = 5,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Soft donut covered in chocolate glaze.",
                             ImageURL = "img/product/sweet/chocolatedonut.png",
                             IsAvailable = true,
@@ -429,7 +429,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 26,
                             CategoryID = 5,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Chocolate-infused croffle with crispy texture.",
                             ImageURL = "img/product/sweet/chocolatedonut.png",
                             IsAvailable = true,
@@ -441,7 +441,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 27,
                             CategoryID = 5,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "White chocolate-coated croffle.",
                             ImageURL = "img/product/sweet/chocolatedonut.png",
                             IsAvailable = true,
@@ -453,7 +453,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 28,
                             CategoryID = 5,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Caramel flan cake with creamy texture.",
                             ImageURL = "img/product/sweet/chocolatedonut.png",
                             IsAvailable = true,
@@ -465,7 +465,7 @@ namespace ProductAndCategoryAPI.Migrations
                         {
                             ProductID = 29,
                             CategoryID = 5,
-                            CreatedDate = new DateTime(2025, 6, 25, 0, 0, 0, 0, DateTimeKind.Local),
+                            CreatedDate = new DateTime(2025, 7, 14, 0, 0, 0, 0, DateTimeKind.Local),
                             Description = "Fluffy Japanese-style cheesecake.",
                             ImageURL = "img/product/sweet/chocolatedonut.png",
                             IsAvailable = true,

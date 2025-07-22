@@ -16,6 +16,10 @@ namespace NotificationAPI.Hubs
         {
             await Clients.All.SendAsync("ProfileUpdated", userId);
         }
+        public async Task NotifyCartChanged()
+        {
+            await Clients.All.SendAsync("CartChanged");
+        }
 
         public async Task NotifyProductUpdate()
         {
@@ -38,4 +42,5 @@ namespace NotificationAPI.Hubs
             await Clients.All.SendAsync("ProductUpdate");
         }
     }
+
 }

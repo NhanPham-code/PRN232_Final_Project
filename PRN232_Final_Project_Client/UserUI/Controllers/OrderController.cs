@@ -2,10 +2,12 @@
 using DTOs.OrderDTO;
 using DTOs.ProductDTO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Service.Interfaces;
 using Service.Services;
 using System.Text.Json;
+using UserUI.Helpers;
 
 namespace UserUI.Controllers
 {
@@ -14,12 +16,17 @@ namespace UserUI.Controllers
         private readonly IOrderService _orderService;
         private readonly IProductService _productService;
         private readonly ICartService _cartService;
+        private readonly INotificationService _notificationService;
+        private readonly IConfiguration _configuration;
 
-        public OrderController(IOrderService orderService, IProductService productService, ICartService cartService)
+
+        public OrderController(IOrderService orderService, IProductService productService, ICartService cartService, INotificationService notificationService, IConfiguration configuration)
         {
             _orderService = orderService;
             _productService = productService;
             _cartService = cartService;
+            _notificationService = notificationService;
+            _configuration = configuration;
         }
 
         // GET: /Order
@@ -117,17 +124,65 @@ namespace UserUI.Controllers
             var token = HttpContext.Session.GetString("UserToken");
             if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Common");
 
+            if (paymentMethod == "VNPAY")
+            {
+                var txnRef = DateTime.Now.Ticks.ToString();
+                TempData["OrderTempData"] = JsonConvert.SerializeObject(new
+                {
+                    fullName,
+                    email,
+                    phone,
+                    shipping_address,
+                    totalPrice,
+                    cartIds,
+                    cartJson,
+                    txnRef
+                });
+
+                var vnpay = new VnPayLibrary();
+                string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+                string returnUrl = $"{Request.Scheme}://{Request.Host}/Order/VnpayReturn";
+                string tmnCode = _configuration["VNPAY:TmnCode"];
+                string hashSecret = _configuration["VNPAY:HashSecret"];
+
+                vnpay.AddRequestData("vnp_Version", "2.1.0");
+                vnpay.AddRequestData("vnp_Command", "pay");
+                vnpay.AddRequestData("vnp_TmnCode", tmnCode);
+                vnpay.AddRequestData("vnp_Amount", ((int)(totalPrice * 100000)).ToString());
+                vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+                vnpay.AddRequestData("vnp_CurrCode", "VND");
+                vnpay.AddRequestData("vnp_IpAddr", HttpContext.Connection.RemoteIpAddress?.ToString());
+                vnpay.AddRequestData("vnp_Locale", "vn");
+                vnpay.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang {txnRef}");
+                vnpay.AddRequestData("vnp_OrderType", "other");
+                vnpay.AddRequestData("vnp_ReturnUrl", returnUrl);
+                vnpay.AddRequestData("vnp_TxnRef", txnRef);
+
+                var paymentUrl = vnpay.CreateRequestUrl(vnp_Url, hashSecret);
+                return Redirect(paymentUrl);
+            }
+
+            // === COD: Create Order Directly ===
+            return await CreateOrderAfterPayment(fullName, email, phone, shipping_address, totalPrice, cartIds, cartJson, paymentMethod, token);
+        }
+        private async Task<IActionResult> CreateOrderAfterPayment(string fullName, string email, string phone, string shipping_address, decimal totalPrice, string cartIds, string cartJson, string paymentMethod, string token)
+        {
             var cartIdList = cartIds.Split(',').Select(int.Parse).ToList();
 
-            var newOrder = new DTOs.OrderDTO.CreateOrderDTO
+            
+            var newOrder = new CreateOrderDTO
             {
                 OrderDate = DateTime.UtcNow,
                 ShippingAddress = shipping_address,
                 TotalAmount = totalPrice,
                 OrderStatus = "Pending",
                 PaymentMethod = paymentMethod,
-                PaymentStatus = "Pending",
+                PaymentStatus = "Unpaid",
             };
+            if(String.Equals(paymentMethod.ToLower(), "vnpay"))
+            {
+                newOrder.PaymentStatus = "Paid";
+            }
 
             var orderId = await _orderService.CreateOrderAsync(newOrder, token);
 
@@ -146,11 +201,11 @@ namespace UserUI.Controllers
                         OrderID = orderId.Value,
                         ProductID = cart.ProductID,
                         Quantity = cart.Quantity,
-                        UnitPrice = unitPrice, 
+                        UnitPrice = unitPrice,
                         TotalPrice = unitPrice * cart.Quantity,
                     };
 
-                    await _orderService.CreateOrderDetailAsync(detailDto, orderId.Value, token); // Gọi để tạo OrderDetail
+                    await _orderService.CreateOrderDetailAsync(detailDto, orderId.Value, token);
 
                     var updatedProduct = new UpdateProductDTO
                     {
@@ -158,25 +213,66 @@ namespace UserUI.Controllers
                         ProductName = product.ProductName,
                         Description = product.Description,
                         Price = product.Price,
-                        StockQuantity = newQuantity, // cập nhật tồn kho
+                        StockQuantity = newQuantity,
                         CategoryID = product.CategoryID,
                         ImageURL = product.ImageURL,
                     };
 
-                    // update product stock quantity
                     await _productService.UpdateProductAsync(updatedProduct, token);
-
-                    // delete cart item after order created
                     await _cartService.DeleteCartAsync(cart.CartID, token);
                 }
 
                 TempData["OrderSuccess"] = "Order created successfully!";
+                await _notificationService.NotifyCartChanged();
                 return RedirectToAction("Index", "Home");
             }
 
             TempData["OrderErrors"] = "Failed to create order. Please try again.";
             return RedirectToAction("Checkout");
         }
+        public async Task<IActionResult> VnpayReturn()
+        {
+            var vnpay = new VnPayLibrary();
+            foreach (string key in Request.Query.Keys)
+            {
+                vnpay.AddResponseData(key, Request.Query[key]);
+            }
+
+            var hashSecret = _configuration["VNPAY:HashSecret"];
+            if (vnpay.ValidateSignature(hashSecret))
+            {
+                string responseCode = vnpay.GetResponseData("vnp_ResponseCode");
+                string transactionStatus = vnpay.GetResponseData("vnp_TransactionStatus");
+
+                if (responseCode == "00" && transactionStatus == "00")
+                {
+                    var temp = TempData["OrderTempData"]?.ToString();
+                    if (string.IsNullOrEmpty(temp)) return RedirectToAction("Fail");
+
+                    var orderInfo = JsonConvert.DeserializeObject<dynamic>(temp);
+
+                    return await CreateOrderAfterPayment(
+                        (string)orderInfo.fullName,
+                        (string)orderInfo.email,
+                        (string)orderInfo.phone,
+                        (string)orderInfo.shipping_address,
+                        (decimal)orderInfo.totalPrice,
+                        (string)orderInfo.cartIds,
+                        (string)orderInfo.cartJson,
+                        "VNPAY",
+                        HttpContext.Session.GetString("UserToken")
+                    );
+                }
+            }
+
+            return RedirectToAction("Fail");
+        }
+        public IActionResult Fail()
+        {
+            TempData["PaymentFailed"] = "Payment failed! Please try again!";
+            return RedirectToAction("Index", "Home");
+        }
 
     }
+
 }
