@@ -36,5 +36,9 @@ namespace Service.Services
                 await _connection.InvokeAsync("NotifyProductUpdate");
             }
         }
+        public async Task NotifyCartChanged()
+        {
+            await _connection.InvokeAsync("NotifyCartChanged");
+        }
     }
 }

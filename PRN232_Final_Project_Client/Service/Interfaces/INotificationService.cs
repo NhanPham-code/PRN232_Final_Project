@@ -11,5 +11,6 @@ namespace Service.Interfaces
         Task NotifyProfileUpdatedAsync(int userId);
 
         Task NotifyProductUpdate();
+        Task NotifyCartChanged();
     }
 }
