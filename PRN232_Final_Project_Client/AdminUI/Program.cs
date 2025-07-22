@@ -26,8 +26,8 @@ builder.Services.AddScoped<Service.Interfaces.IProductService, Service.Services.
 builder.Services.AddScoped<Service.Interfaces.ICategoryService, Service.Services.CategoryService>();
 builder.Services.AddScoped<Service.Interfaces.IFeedbackService, Service.Services.FeedbackService>();
 builder.Services.AddScoped<Service.Interfaces.INotificationService, Service.Services.NotificationService>();
-
 builder.Services.AddScoped<Service.Services.EmailService>();
+builder.Services.AddScoped<Service.Interfaces.IOrderService, Service.Services.OrderService>();
 
 var app = builder.Build();
 

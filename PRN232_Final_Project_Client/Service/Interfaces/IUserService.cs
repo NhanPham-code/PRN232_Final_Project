@@ -18,5 +18,6 @@ namespace Service.Interfaces
 
         // Get users for Admin
         Task<string> GetUsersAsync(string token, string keyword = "", int page = 1, int pageSize = 5);
+        Task<string> GetUserNameByIdAsync(int userId, string token);
     }
 }

@@ -259,6 +259,14 @@
 
         setInterval(changeImage, 3000);
     </script>
+    @if (TempData["PaymentFailed"] != null)
+    {
+        <script>
+            window.onload = function () {
+                alert("@TempData["PaymentFailed"]");
+            }
+        </script>
+    }
 
 </body>
 </html>

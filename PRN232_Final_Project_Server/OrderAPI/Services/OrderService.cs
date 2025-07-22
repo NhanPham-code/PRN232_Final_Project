@@ -103,15 +103,15 @@ namespace OrderAPI.Services
 
 
         // Method to update an existing orders
-        /*        public async Task<ReadOrderDTO> UpdateOrderAsync(int id, UpdateOrderDTO updateOrderDTO)
-                {
-                    var order = _mapper.Map<Order>(updateOrderDTO);
-                    order.OrderID = id; // Ensure the ID is set for the update
-                    var updatedOrder = await _orderRepo.UpdateOrder(id, order);
-                    if (updatedOrder == null) return null;
-                    return _mapper.Map<ReadOrderDTO>(updatedOrder);
-                }
-        */
+        public async Task<ReadOrderDTO> UpdateOrderAsync(int id, UpdateOrderDTO updateOrderDTO)
+        {
+            var order = _mapper.Map<Order>(updateOrderDTO);
+            order.OrderID = id; // Ensure the ID is set for the update
+            var updatedOrder = await _orderRepo.UpdateOrder(id, order);
+            if (updatedOrder == null) return null;
+            return _mapper.Map<ReadOrderDTO>(updatedOrder);
+        }
+
         // Method to update an orders detail
         /*        public async Task<ReadOrderDetailDTO> UpdateOrderDetailAsync(int id, UpdateOrderDetailDTO updateOrderDetailDTO)
                 {

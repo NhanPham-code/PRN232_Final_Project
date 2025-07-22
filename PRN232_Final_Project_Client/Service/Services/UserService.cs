@@ -3,6 +3,7 @@ using Service.BaseService;
 using Service.Interfaces;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Service.Services
@@ -169,5 +170,22 @@ namespace Service.Services
             // return true if success
             return true;
         }
+
+        public async Task<string> GetUserNameByIdAsync(int userId, string token)
+        {
+            AddBearerToken(token);
+
+            var response = await _httpClient.GetAsync($"/users/get?$filter=UserId eq {userId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                return content;
+            }
+
+            return null;
+        }
+
     }
 }

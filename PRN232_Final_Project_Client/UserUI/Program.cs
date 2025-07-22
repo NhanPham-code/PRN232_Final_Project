@@ -3,7 +3,11 @@ using Service.Interfaces;
 using Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
+builder.Services.AddSingleton<IConfiguration>(builder.Configuration);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -33,6 +37,7 @@ builder.Services.AddScoped<Service.Services.EmailService>();
 builder.Services.AddScoped<Service.Interfaces.INotificationService, Service.Services.NotificationService>();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
