@@ -632,7 +632,7 @@
         "RequireAuthentication": true
       },
       "RouteClaimsRequirement": {
-        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": "Customer"
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": "Customer|Admin"
       }
     },
 
@@ -703,6 +703,30 @@
       "ChangeDownstreamPathTemplate": {
         "orderId": "Claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value"
       }
+    },
+
+    // PUT update order
+    {
+      "DownstreamPathTemplate": "/api/Orders/{id}",
+      "UpstreamPathTemplate": "/Orders/{id}/update",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7254
+        }
+      ],
+      "UpstreamHttpMethod": [ "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "RequireAuthentication": true
+      },
+      "RouteClaimsRequirement": {
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role": "Admin"
+      }
+      //"changedownstreampathtemplate": {
+      //  "id": "claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value"
+      //}
     }
   ],
   "GlobalConfiguration": {
