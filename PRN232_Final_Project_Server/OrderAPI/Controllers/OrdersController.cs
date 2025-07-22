@@ -82,18 +82,18 @@ namespace OrderAPI.Controllers
 
         // PUT: api/Orders/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        /*        [HttpPut("{id}")]
-                public async Task<IActionResult> PutOrder(int id, [FromForm]UpdateOrderDTO order)
-                {
-                    if (id != order.OrderID)
-                    {
-                        return BadRequest();
-                    }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutOrder(int id, [FromBody] UpdateOrderDTO order)
+        {
+            if (id != order.OrderID)
+            {
+                return BadRequest();
+            }
 
-                    var orders = await _orderService.UpdateOrderAsync(id, order);
+            var orders = await _orderService.UpdateOrderAsync(id, order);
 
-                    return Ok(orders);
-                }*/
+            return Ok(orders);
+        }
 
         // POST: api/Orders
         [HttpPost("{userId}")]

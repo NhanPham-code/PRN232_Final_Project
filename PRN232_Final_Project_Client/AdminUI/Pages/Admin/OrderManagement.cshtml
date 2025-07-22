@@ -1,0 +1,633 @@
+﻿@page
+@model AdminUI.Pages.Admin.OrderManagementModel
+@{
+    ViewData["Title"] = "Quản lý đơn hàng";
+}
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Order Management</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Search Section -->
+                    @* <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="searchKeyword" placeholder="Search orders...">
+                                <button class="btn btn-outline-secondary" type="button" id="searchBtn">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="text-center" style="display: none;">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+
+                    <!-- Orders Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="ordersTable">
+                            <thead class="table-dark">
+                                <tr>
+@*                                     <th>Order ID</th>
+ *@                                    <th>User Name</th>
+                                    <th>Order Date</th>
+                                    <th>Total Amount</th>
+                                    <th>Shipping Address</th>
+                                    <th>Order Status</th>
+                                    <th>Payment Method</th>
+                                    <th>Payment Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ordersTableBody">
+                                <!-- Data will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="recordsInfo" class="mt-3">
+                                <!-- Records info will be displayed here -->
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <nav aria-label="Orders pagination">
+                                <ul class="pagination justify-content-end mt-3" id="paginationNav">
+                                    <!-- Pagination will be generated here -->
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* modal for order detail *@
+<!-- Modal for order detail -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">
+                    <i class="fas fa-receipt"></i> Order details
+                </h5>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="acceptOrderBtn">
+                        <i class="fas fa-check"></i> Accept
+                    </button>
+                    <button type="button" class="btn btn-danger" id="declineOrderBtn">
+                        <i class="fas fa-times-circle"></i> Decline
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="modalCloseBtn" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Close
+                    </button>
+                </div>
+
+            </div>
+            <div class="modal-body" id="orderDetailsContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModalBtn" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+@section Scripts {
+    <script>
+        // Global variables
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalCount = 0;
+        let currentKeyword = '';
+        var orderResponse;
+        let orderModal;
+        let currentOrderId;
+
+        function loadOrders(keyword, page, size) {
+            $('#ordersTable').hide();
+
+            $.ajax({
+                url: '/Admin/OrderManagement?handler=Orders',
+                method: 'GET',
+                data: {
+                    keyword: keyword,
+                    currentPage: page,
+                    pageSize: size
+                },
+                success: function (data) {
+                    console.log("Order data:", data);
+
+                    // Update global variables
+                    totalCount = data['\u0040odata.count'] || 0;
+                    currentPage = page;
+                    currentKeyword = keyword;
+                    pageSize = size;
+                    orderResponse = data;
+
+                    // Render table
+                    renderOrdersTable(data.value || []);
+
+                    // Update pagination
+                    updatePagination();
+
+                    // Update records info
+                    updateRecordsInfo();
+
+                    $('#loadingSpinner').hide();
+                    $('#ordersTable').show();
+                },
+                error: function () {
+                    alert("Không thể tải đơn hàng.");
+                }
+            });
+        }
+
+        async function renderOrdersTable(orders) {
+            const tbody = $('#ordersTable tbody');
+            tbody.empty();
+
+            // Process orders with user data fetching
+            for (const order of orders) {
+                const orderDate = new Date(order.OrderDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: '2-digit'
+                });
+
+                const statusBadge = getStatusBadge(order.OrderStatus);
+                const paymentStatusBadge = getPaymentStatusBadge(order.PaymentStatus);
+
+                console.log(order.UserID);
+
+                // Fetch user data for this order
+                const user = await fetchUserNameById(order.UserID);
+                const userName = getUserDisplayName(user);
+
+                const row = `
+                            <tr>
+                                <td>${userName}</td>
+                                <td>${orderDate}</td>
+                                <td>$${order.TotalAmount.toFixed(2)}</td>
+                                <td>${order.ShippingAddress}</td>
+                                <td>${statusBadge}</td>
+                                <td>${order.PaymentMethod}</td>
+                                <td>${paymentStatusBadge}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-info"
+                                                onclick="viewOrderDetails(${order.OrderID})"
+                                                title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        ${order.OrderStatus === 'Pending' ?
+                        `<button type="button" class="btn btn-sm btn-outline-success"
+                                                     onclick="acceptOrder(${order.OrderID})"
+                                                     title="Accept Order">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                     onclick="declineOrder(${order.OrderID})"
+                                                     title="Decline Order">
+                                                <i class="fas fa-times"></i>
+                                            </button>` : ''
+                    }
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                tbody.append(row);
+            }
+        }
+
+        async function fetchUserNameById(userId) {
+            try {
+                const response = await $.ajax({
+                    url: '/Admin/OrderManagement?handler=OrdersWithUserNames',
+                    method: 'GET',
+                    data: { userId: userId }
+                });
+
+                if (response.success && response.data) {
+                    const parsed = JSON.parse(response.data); // vì server trả string JSON
+                    return parsed.value && parsed.value.length > 0 ? parsed.value[0] : null;
+                }
+
+                return null;
+            } catch (error) {
+                console.error("Lỗi khi lấy thông tin user:", error);
+                return null;
+            }
+        }
+
+        function getUserDisplayName(user) {
+            if (!user) return 'Unknown User';
+
+            return user.FullName || user.Email || `User ${user.UserId}`;
+        }
+
+        // Hàm xem chi tiết đơn hàng - SỬA LẠI
+        function viewOrderDetails(orderId) {
+            console.log("Selected order:", orderId);
+
+            // Tìm kiếm đơn hàng trong danh sách
+            const selectedOrder = orderResponse.value.find(o => o.OrderID === orderId);
+            currentOrderId = selectedOrder.OrderID;
+            console.log('currentOrderId: ', currentOrderId);
+
+            if (selectedOrder) {
+                // Hiển thị modal và load data
+                showOrderDetailsModal(selectedOrder);
+            } else {
+                alert('Order not found');
+            }
+        }
+
+        // Modal for order details - SỬA LẠI
+        async function showOrderDetailsModal(order) {
+            try {
+                // Hiển thị modal (sử dụng modal đã được khởi tạo)
+                orderModal.show();
+
+                // Show loading spinner
+                document.getElementById('orderDetailsContent').innerHTML = `
+                            <div class="text-center">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Loading order details...</p>
+                            </div>
+                        `;
+
+                // Update modal title
+                document.getElementById('orderDetailsModalLabel').innerHTML = `
+                            <i class="fas fa-receipt"></i> Order Details #${order.OrderID}
+                        `;
+
+                // Get product details cho từng order detail
+                const orderDetailsWithProducts = await Promise.all(
+                    order.OrderDetails.map(async (detail) => {
+                        try {
+                            const response = await $.ajax({
+                                url: '/Admin/ProductManagement?handler=ProductDetail',
+                                method: 'GET',
+                                data: { productId: detail.ProductID }
+                            });
+
+                            return {
+                                ...detail,
+                                product: response
+                            };
+                        } catch (error) {
+                            console.error(`Error fetching product ${detail.ProductID}:`, error);
+                            return {
+                                ...detail,
+                                product: null
+                            };
+                        }
+                    })
+                );
+
+                // Format order date
+                const orderDate = new Date(order.OrderDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                // Generate HTML
+                let totalAmount = 0;
+                let tableRows = '';
+
+                orderDetailsWithProducts.forEach(detail => {
+                    const productName = detail.product?.productName || 'Unknown Product';
+                    const imageURL = detail.product?.imageURL;
+                    const quantity = detail.Quantity || 0;
+                    const unitPrice = detail.UnitPrice || 0;
+                    const subtotal = quantity * unitPrice;
+
+                    totalAmount += subtotal;
+
+                    tableRows += `
+                                <tr>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            <img src="/${imageURL}"
+                                                 alt="${productName}"
+                                                 class="me-3 rounded"
+                                                 style="width: 60px; height: 60px; object-fit: cover;"
+                                                 onerror="this.src='/images/no-image.png'">
+                                            <div>
+                                                <h6 class="mb-0">${productName}</h6>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge bg-primary fs-6">${quantity}</span>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <strong>${unitPrice.toLocaleString('en-US')} $</strong>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <strong class="text-success">${subtotal.toLocaleString('en-US')} $</strong>
+                                    </td>
+                                </tr>
+                            `;
+                });
+
+                const user = await fetchUserNameById(order.UserID);
+                const userName = getUserDisplayName(user);
+
+                const content = `
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p><strong>Order Date:</strong> ${orderDate}</p>
+                                            <p><strong>Customer:</strong> ${userName}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong>
+                                        <span class="badge bg-info">${order.OrderStatus || 'Pending'}</span>
+                                    </p>
+                                    <p><strong>Payment Method:</strong> ${order.PaymentMethod || 'N/A'}</p>
+                                </div>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark text-center">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Quantity</th>
+                                            <th>Unit Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tableRows}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-8"></div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h5 class="mb-0">Total Amount:</h5>
+                                                <h4 class="mb-0 text-primary">
+                                                    <i class="fas fa-money-bill-wave"></i>
+                                                    ${totalAmount.toLocaleString('en-US')} $
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                // Update modal content
+                document.getElementById('orderDetailsContent').innerHTML = content;
+
+            } catch (error) {
+                console.error('Error showing order details:', error);
+                document.getElementById('orderDetailsContent').innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Error loading order details. Please try again.
+                            </div>
+                        `;
+            }
+        }
+
+        // Utility functions - PHẢI Ở NGOÀI
+        function getStatusBadge(status) {
+            const statusClasses = {
+                'Pending': 'badge bg-warning text-dark',
+                'Processing': 'badge bg-info',
+                'Shipped': 'badge bg-primary',
+                'Delivered': 'badge bg-success',
+                'Cancelled': 'badge bg-danger',
+                'Accepted': 'badge bg-success'
+            };
+
+            const className = statusClasses[status] || 'badge bg-secondary';
+            return `<span class="${className}">${status}</span>`;
+        }
+
+        function getPaymentStatusBadge(status) {
+            const statusClasses = {
+                'Paid': 'badge bg-success',
+                'Pending': 'badge bg-warning text-dark',
+                'Failed': 'badge bg-danger',
+                'Refunded': 'badge bg-info'
+            };
+
+            const className = statusClasses[status] || 'badge bg-secondary';
+            return `<span class="${className}">${status}</span>`;
+        }
+
+        function updatePagination() {
+            const totalPages = Math.ceil(totalCount / pageSize);
+            const pagination = $('#paginationNav');
+            pagination.empty();
+
+            if (totalPages <= 1) return;
+
+            // Previous button
+            const prevDisabled = currentPage === 1 ? 'disabled' : '';
+            pagination.append(`
+                        <li class="page-item ${prevDisabled}">
+                            <a class="page-link" href="#" onclick="goToPage(${currentPage - 1})" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    `);
+
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, startPage + 4);
+
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === currentPage ? 'active' : '';
+                pagination.append(`
+                            <li class="page-item ${active}">
+                                <a class="page-link" href="#" onclick="goToPage(${i})">${i}</a>
+                            </li>
+                        `);
+            }
+
+            // Next button
+            const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+            pagination.append(`
+                        <li class="page-item ${nextDisabled}">
+                            <a class="page-link" href="#" onclick="goToPage(${currentPage + 1})" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    `);
+        }
+
+        function updateRecordsInfo() {
+            const startRecord = totalCount === 0 ? 0 : ((currentPage - 1) * pageSize) + 1;
+            const endRecord = Math.min(currentPage * pageSize, totalCount);
+
+            $('#recordsInfo').html(`
+                        <span class="text-muted">
+                            Showing ${startRecord} to ${endRecord} of ${totalCount} orders
+                        </span>
+                    `);
+        }
+
+        function goToPage(page) {
+            if (page < 1 || page > Math.ceil(totalCount / pageSize)) return;
+            loadOrders(currentKeyword, page, pageSize);
+        }
+
+        // Modal utility functions
+        function closeOrderModal() {
+            if (orderModal) {
+                orderModal.hide();
+            }
+        }
+
+        function resetModalContent() {
+            document.getElementById('orderDetailsContent').innerHTML = `
+                        <div class="text-center">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    `;
+
+            document.getElementById('orderDetailsModalLabel').innerHTML = `
+                        <i class="fas fa-receipt"></i> Order Details
+                    `;
+        }
+
+        // KHỞI TẠO CHỈ MỘT LẦN - PHẢI Ở NGOÀI CÙNG
+        document.addEventListener('DOMContentLoaded', function () {
+            // Khởi tạo modal CHỈ MỘT LẦN
+            const modalElement = document.getElementById('orderDetailsModal');
+            orderModal = new bootstrap.Modal(modalElement, {
+                backdrop: 'static', // Không đóng khi click outside
+                keyboard: true      // Cho phép đóng bằng ESC
+            });
+
+            // Event listener cho việc đóng modal - CHỈ MỘT LẦN
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                console.log('Modal đã được đóng');
+                resetModalContent();
+            });
+
+            modalElement.addEventListener('shown.bs.modal', function () {
+                console.log('Modal đã được mở');
+            });
+        });
+
+        // jQuery ready
+        $(document).ready(function () {
+            loadOrders('', 1, 10);
+
+            // Search functionality
+            $('#searchBtn').on('click', function () {
+                const keyword = $('#searchKeyword').val().trim();
+                loadOrders(keyword, 1, 10);
+            });
+
+            // Enter key search
+            $('#searchKeyword').on('keypress', function (e) {
+                if (e.which === 13) {
+                    const keyword = $(this).val().trim();
+                    loadOrders(keyword, 1, 10);
+                }
+            });
+        });
+
+        function acceptOrder(orderId) {
+            updateOrderStatus(orderId, "Accepted");
+        }
+
+        function declineOrder(orderId) {
+            updateOrderStatus(orderId, "Cancelled");
+        }
+
+        $('#acceptOrderBtn').on('click', function () {
+            if (currentOrderId) {
+                acceptOrder(currentOrderId);
+                $('#orderDetailsModal').modal('hide');
+            }
+        });
+
+        // Sự kiện khi nhấn Decline
+        $('#declineOrderBtn').on('click', function () {
+            if (currentOrderId) {
+                declineOrder(currentOrderId);
+                $('#orderDetailsModal').modal('hide');
+            }
+        });
+
+        // update order status
+        function updateOrderStatus(orderId, status) {
+            console.log("OrderId for update: ", orderId);
+            var orderData = orderResponse.value.find(order => order.OrderID === orderId);
+            console.log("orderData: ", orderData);
+
+            orderData.OrderStatus = status;
+            delete orderData.OrderDetails;
+
+            // Create FormData object
+            var formData = new FormData();
+
+            // Add each property of orderData to formData
+            for (var key in orderData) {
+                if (orderData.hasOwnProperty(key)) {
+                    formData.append(key, orderData[key]);
+                }
+            }
+
+            // Add anti-forgery token
+
+            $.ajax({
+                url: '?handler=OrderUpdate',
+                type: 'GET',
+                data: orderData,
+                success: function (response) {
+                    console.log("Order updated successfully:", response);
+                    // Reload orders after update
+                    loadOrders(currentKeyword, currentPage, pageSize);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error updating order:", textStatus, errorThrown, jqXHR.responseText);
+                    alert("Không thể cập nhật đơn hàng. Vui lòng thử lại.");
+                },
+            });
+
+        }
+    </script>
+
+}

@@ -14,7 +14,7 @@ namespace OrderAPI.Services.Interfaces
         Task<ReadOrderDetailDTO> GetOrderDetailByIdAsync(int id);
         Task<ReadOrderDTO> CreateOrderAsync(CreateOrderDTO orderDTO);
         Task<ReadOrderDetailDTO> AddOrderDetailAsync(int orderId, CreateOrderDetailDTO createOrderDetailDto);
-        //Task<ReadOrderDTO> UpdateOrderAsync(int id, UpdateOrderDTO orderDTO);
+        Task<ReadOrderDTO> UpdateOrderAsync(int id, UpdateOrderDTO orderDTO);
         //Task<ReadOrderDetailDTO> UpdateOrderDetailAsync(int id, UpdateOrderDetailDTO updateOrderDetailDTO);
         Task<bool> DeleteOrderAsync(int id);
         //Task<bool> DeleteOrderDetailAsync(int id);

@@ -13,5 +13,7 @@ namespace Service.Interfaces
         Task<List<ReadOrderDetailDTO>> GetOrderDetailAsync(int orderId, string token, int top, int skip);
         Task<int?> CreateOrderAsync(CreateOrderDTO order, string token);
         Task<bool> CreateOrderDetailAsync(CreateOrderDetailDTO orderDetail, int orderId, string token);
+        Task<string> GetAdminOrdersAsync(string token, string keyword, int currentPage, int pageSize);
+        Task<bool> UpdateOrderAsync(string token, UpdateOrderDTO updateOrderDto);
     }
 }
