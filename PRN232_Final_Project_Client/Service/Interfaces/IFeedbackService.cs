@@ -6,7 +6,8 @@ namespace Service.Interfaces
     {
         /* OData – Trang contact hiển thị carousel */
         Task<List<ReadFeedbackDTO>> GetAllAsync(string token);
-
+        Task<List<ReadFeedbackDTO>> GetAllOdataAsync(string token);
+        Task<List<ReadFeedbackDTO>> GetTopFeedbackAsync(int top, string token);
         /* Feedback 1‑user‑1 */
         Task<ReadFeedbackDTO?> GetByUserIdAsync(string token);
 

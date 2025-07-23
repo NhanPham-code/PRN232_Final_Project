@@ -9,7 +9,7 @@ namespace FeedbackAPI.Controllers
     [Route("api/[controller]")]
     public class FeedbacksController : ControllerBase
     {
-        private readonly IFeedbackService _service;
+        private readonly IFeedbackService _service;               
 
         public FeedbacksController(IFeedbackService service)
         {
@@ -23,7 +23,6 @@ namespace FeedbackAPI.Controllers
         {
             return _service.GetAllFeedbacks();
         }
-
         // GET: api/Feedbacks/user/5
         [HttpGet("{userId}")]
         public async Task<ActionResult<ReadFeedbackDTO>> GetByUserId(int userId)
@@ -61,5 +60,6 @@ namespace FeedbackAPI.Controllers
             Console.WriteLine($"❗ Đang cố xoá feedback của userId = {userId}");
             return deleted ? NoContent() : NotFound();
         }
+
     }
 }

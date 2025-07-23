@@ -2,19 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using Service.Interfaces;
+using Service.Services;
+using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace UserUI.Controllers
 {
-        public class ContactController : Controller
+    public class ContactController : Controller
+    {
+        private readonly IFeedbackService _feedbackService;
+        private readonly IUserService _userService;
+        public ContactController(IFeedbackService feedbackService, IUserService userService)
         {
-            private readonly IFeedbackService _feedbackService;
-
-            public ContactController(IFeedbackService feedbackService)
-            {
-                _feedbackService = feedbackService;
-            }
+            _feedbackService = feedbackService;
+            _userService = userService;
+        }
 
         /* ----------------- Trang Contact ------------------------------- */
         public async Task<IActionResult> Index()
@@ -29,7 +33,7 @@ namespace UserUI.Controllers
             if (string.IsNullOrEmpty(token))
                 return RedirectToAction("Login", "Common");
 
-            var list = await _feedbackService.GetAllAsync(token);               // ✅ truyền token
+            var list = await _feedbackService.GetTopFeedbackAsync(5, token);               // ✅ truyền token
 
             var customerFeedback = await _feedbackService.GetByUserIdAsync(token);
             if (customerFeedback != null)
@@ -67,6 +71,50 @@ namespace UserUI.Controllers
             return RedirectToAction("Index");
         }
 
+        /* ----------------- Trang List ------------------------------- */
+        [HttpGet]
+        public async Task<IActionResult> ListFeedback(int page = 1, int pageSize = 5)
+        {
+            var token = HttpContext.Session.GetString("UserToken");
+            if (string.IsNullOrEmpty(token)) return RedirectToAction("Login", "Common");
 
+            var feedbacks = await _feedbackService.GetAllAsync(token);
+
+            var json = await _userService.GetUsersAsync(token, "", 1, 1000);
+            var jsonDoc = JsonDocument.Parse(json);
+
+            var users = jsonDoc.RootElement.GetProperty("value").EnumerateArray()
+                .Select(u => new
+                {
+                    UserId = u.GetProperty("UserId").GetInt32(),
+                    FullName = u.GetProperty("FullName").GetString() ?? "Unknown",
+                    Email = u.GetProperty("Email").GetString() ?? "Unknown"
+                })
+                .ToDictionary(u => u.UserId, u => (u.FullName, u.Email));
+
+            var combined = feedbacks.Select(fb =>
+            {
+                var userInfo = users.ContainsKey(fb.UserID) ? users[fb.UserID] : ("Unknown", "Unknown");
+
+                return new FeedbackWithUser
+                {
+                    FeedbackID = fb.FeedbackID,
+                    Description = fb.Description,
+                    SubmittedDate = fb.SubmittedDate,
+                    UserID = fb.UserID,
+                    FullName = userInfo.Item1,
+                    Email = userInfo.Item2
+                };
+            }).ToList();
+
+            // Phân trang
+            int totalItems = combined.Count;
+            var items = combined.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            return View(items);
+        }
     }
 }

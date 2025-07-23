@@ -40,7 +40,9 @@ namespace NotificationAPI.Hubs
                 _isBatchRunning = false;
             }
             await Clients.All.SendAsync("ProductUpdate");
+
         }
+       
     }
 
 }
