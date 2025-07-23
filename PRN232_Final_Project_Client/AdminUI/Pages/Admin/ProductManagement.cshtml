@@ -303,11 +303,11 @@
 
 <script>
         $(document).ready(function () {
-        const page = sessionStorage.getItem("currentPage");;
+     
         if (isNaN(page) || page < 1) {
             loadProducts(1);
         } else {
-            loadProducts(page);
+            loadProducts(1);
         }
     });
 

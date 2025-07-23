@@ -26,8 +26,6 @@ namespace PRN232_Final_Project_Client.Pages.Categories
 
         public async Task OnGetAsync()
         {
-            HttpContext.Session.SetString("token"
-              , "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQWRtaW4gVXNlciIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL2VtYWlsYWRkcmVzcyI6ImFkbWluQGV4YW1wbGUuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWRtaW4iLCJleHAiOjE3NTA5OTU3NTUsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjcwMDkiLCJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo3MTEyIn0.CoPvX26X3v8U-JE4fx7WyEoZ-z2MkhC7BjA31ayvv2s"); // Set the active page in session
 
 
         }
@@ -58,7 +56,7 @@ namespace PRN232_Final_Project_Client.Pages.Categories
                 return await ReloadPage();
             }
 
-            var token = HttpContext.Session.GetString("token");
+            var token = HttpContext.Session.GetString("AdminToken");
             var result = await _categoryService.CreateCategoryAsync(NewCategory, token);
 
             if (!result)
@@ -90,7 +88,7 @@ namespace PRN232_Final_Project_Client.Pages.Categories
                 return await ReloadPage();
             }
 
-            var token = HttpContext.Session.GetString("token");
+            var token = HttpContext.Session.GetString("AdminToken");
 
             var dto = new UpdateCategoryDTO
             {
@@ -115,7 +113,7 @@ namespace PRN232_Final_Project_Client.Pages.Categories
         public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             ModelState.Clear();
-            var token = HttpContext.Session.GetString("token");
+            var token = HttpContext.Session.GetString("AdminToken");
             var result = await _categoryService.DeleteCategoryAsync(id, token);
 
             if (!result)
