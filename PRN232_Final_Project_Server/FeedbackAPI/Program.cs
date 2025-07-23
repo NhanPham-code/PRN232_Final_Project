@@ -1,15 +1,15 @@
 ﻿using FeedbackAPI.Data;
-using FeedbackAPI.Services;
+using FeedbackAPI.DTOs;
+using FeedbackAPI.Models;
 using FeedbackAPI.Repositories;
+using FeedbackAPI.Repositories.Interface;
+using FeedbackAPI.Services;
+using FeedbackAPI.Services.Interface;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
-using FeedbackAPI.Models;
-using Microsoft.AspNetCore.OData;
-using FeedbackAPI.Services.Interface;
-using FeedbackAPI.Repositories.Interface;
-using FeedbackAPI.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 // 1. Build EDM model
@@ -47,7 +47,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI xxxxxxat https://aka.ms/aspnetcore/swashbuckle
 // Build app
 builder.Services.AddSwaggerGen();
-
 
 var app = builder.Build();
 

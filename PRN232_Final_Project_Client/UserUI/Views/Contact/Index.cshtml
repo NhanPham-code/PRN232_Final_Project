@@ -269,7 +269,7 @@
                         <div id="feedbackContainer" class="feedback-cards" style="display:flex; gap:1.5rem; flex-wrap:nowrap; justify-content:center;">
                             @for (int i = 0; i < Model.Count; i++)
                             {
-                                <div class="feedback-card" data-index="@i">
+                                <div class="feedback-card" data-feedbackid="@Model[i].FeedbackID" data-index="@i">
                                     <div class="quote-icon">“</div>
                                     <p class="text">"@Model[i].Description"</p>
                                     <p class="author">— Beloved Customer —</p>

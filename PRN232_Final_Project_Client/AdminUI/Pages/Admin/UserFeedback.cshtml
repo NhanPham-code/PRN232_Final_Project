@@ -25,7 +25,6 @@
         <tbody>
             @if (Model.FeedbackList.Any())
             {
-                int index = 1;
                 foreach (var fb in Model.FeedbackList)
                 {
                     <tr>
@@ -40,7 +39,6 @@
                             </button>
                         </td>
                     </tr>
-                    index++;
                 }
             }
             else
@@ -54,7 +52,9 @@
 </div>
 
 @section Scripts {
+    
     <script>
+       
         async function deleteFeedbackByUser(userId) {
             if (!confirm("Bạn có chắc chắn muốn xóa phản hồi này không?")) return;
 
@@ -71,12 +71,13 @@
 
             const data = await res.json();
             if (res.ok && data.success) {
-                alert("Đã xoá thành công");
-                location.reload();
+                // Xóa thành công thì reload luôn (client không gọi hub invoke)
+                // Backend sẽ gọi hub để notify các client khác (nếu cần)
+                Swal.fire('Đã xoá!', 'Phản hồi đã được xóa.', 'success')
+                    .then(() => location.reload());
             } else {
                 alert("Lỗi xoá phản hồi");
             }
         }
     </script>
 }
-

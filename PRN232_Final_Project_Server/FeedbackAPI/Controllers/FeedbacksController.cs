@@ -16,6 +16,13 @@ namespace FeedbackAPI.Controllers
             _service = service;
         }
 
+        // GET: api/Feedbacks
+        [HttpGet]
+        [EnableQuery]
+        public IQueryable<ReadFeedbackDTO> GetAll()
+        {
+            return _service.GetAllFeedbacks();
+        }
         // GET: api/Feedbacks/user/5
         [HttpGet("{userId}")]
         public async Task<ActionResult<ReadFeedbackDTO>> GetByUserId(int userId)
